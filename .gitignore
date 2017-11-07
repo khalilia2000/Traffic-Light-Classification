@@ -1,0 +1,6 @@
+dataset_additional_rgb
+dataset_test_rgb.zip
+dataset_train_rgb.zip
+trn_dataset
+.model.h5
+.model.json
