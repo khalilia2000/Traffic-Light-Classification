@@ -216,10 +216,11 @@ def build_data_sets(target_dir, min_records=100, add_variations=False, verbose=F
                     intersect_bool = intersect_bool or does_intersect([x1, x2, y1, y2], [other_tl['x_min'], other_tl['x_max'], other_tl['y_min'], other_tl['y_max']])
                 if not intersect_bool:
                     img_box = img[y1:y2, x1:x2, :]
-                    fname = target_dir+status+str(counter)+'.png'
-                    scipy.misc.imsave(fname, img_box)
-                    all_labels[fname] = (status, path)
-                    counter += 1
+                    if (img_box.shape[0]==target_size[0] and img_box.shape[1]==target_size[1]):
+                        fname = target_dir+status+str(counter)+'.png'
+                        scipy.misc.imsave(fname, img_box)
+                        all_labels[fname] = (status, path)
+                        counter += 1
         
         
         if add_others:
@@ -236,10 +237,11 @@ def build_data_sets(target_dir, min_records=100, add_variations=False, verbose=F
                     intersect_bool = intersect_bool or does_intersect([x1, x2, y1, y2], [other_tl['x_min'], other_tl['x_max'], other_tl['y_min'], other_tl['y_max']])
                 if not intersect_bool:
                     img_box = img[y1:y2, x1:x2, :]
-                    fname = target_dir+status+str(counter)+'.png'
-                    scipy.misc.imsave(fname, img_box)
-                    all_labels[fname] = (status, path)
-                    counter += 1    
+                    if (img_box.shape[0]==target_size[0] and img_box.shape[1]==target_size[1]):
+                        fname = target_dir+status+str(counter)+'.png'
+                        scipy.misc.imsave(fname, img_box)
+                        all_labels[fname] = (status, path)
+                        counter += 1    
             
             
     df1 = pd.DataFrame.from_dict(all_labels, orient='index')
