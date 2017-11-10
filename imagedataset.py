@@ -97,7 +97,7 @@ class ImgDataSet(object):
     self._images = self._images.astype('float32')
     self._images -= 127.5
     self._images /= 127.5
-    self._images /= self._normalization_factor
+    self._images *= self._normalization_factor
     pass
   
   

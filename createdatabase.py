@@ -150,7 +150,8 @@ def get_box_coords(x_min, x_max, y_min, y_max, image_x_max, image_y_max, random=
     target_y_max = min(target_y_min + target_size[1], image_y_max)
     
     return target_x_min, target_x_max, target_y_min, target_y_max 
-        
+            
+
 
 def does_intersect(box1, box2):
     '''
@@ -271,26 +272,45 @@ def reset_data():
     data = []
 
 
-def main():
-    
-    global data
 
+def create_trn(num_data_points):
+    '''
+    create training dataset
+    '''
+    global data
     # training dataset
     reset_data()
     delete_current_datasets(target_dir_trn)
     data = load_yaml(yaml_dirs[0], yaml_files[0])
     modify_filenames(yaml_dirs[0])
     add_data_from_yaml(yaml_dirs[0])
-    build_data_sets(target_dir_trn, min_records=100, add_variations=True, verbose=False, add_others=50)
-      
+    build_data_sets(target_dir_trn, min_records=num_data_points, 
+                    add_variations=True, verbose=False, 
+                    add_others=round(0.5*num_data_points))
+
+
+def create_val(num_data_points):
+    '''
+    create validation dataset
+    '''
+    global data
     # validation dataset
     reset_data()
     delete_current_datasets(target_dir_val)
     data = load_yaml(yaml_dirs[1], yaml_files[1])
     modify_filenames(yaml_dirs[1])
     add_data_from_yaml(yaml_dirs[1])
-    build_data_sets(target_dir_val, min_records=15, add_variations=True, verbose=False, add_others=5)
+    build_data_sets(target_dir_val, min_records=num_data_points, 
+                    add_variations=True, verbose=False, 
+                    add_others=round(0.5*num_data_points))
        
+
+
+def create_tst(num_data_points):
+    '''
+    create test dataset
+    '''
+    global data
     # test dataset
     reset_data()
     delete_current_datasets(target_dir_tst)
@@ -298,8 +318,13 @@ def main():
     modify_test_filenames()
     modify_filenames(yaml_dirs[2])
     add_data_from_yaml(yaml_dirs[2])
-    build_data_sets(target_dir_tst, min_records=50, add_variations=True, verbose=False)
+    build_data_sets(target_dir_tst, min_records=num_data_points, 
+                    add_variations=True, verbose=False, 
+                    add_others=round(0.5*num_data_points))
        
+    
+
+def main():
     pass
 
 
