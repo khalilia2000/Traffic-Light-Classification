@@ -28,7 +28,7 @@ class ImgDataSet(object):
     self._labels = labels
     self._size_factor = 3
     self._aspect_ratio = 1.0 * images.shape[1] / images.shape[2]
-    self._normalization_factor = 1 / norm_max_min
+    self._normalization_factor = norm_max_min
     self._resize_dim = scaled_dim
     
     # The following parameters will be used for retrieving data batches    
