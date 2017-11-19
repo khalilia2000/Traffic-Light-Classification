@@ -13,8 +13,16 @@ import os
 import scipy
 
 
-yaml_dirs = ['./dataset_train_rgb.zip/', './dataset_additional_rgb/', './dataset_test_rgb.zip/']
-yaml_files = ['train.yaml', 'additional_train.yaml', 'test.yaml']
+yaml_dirs = ['./dataset_train_rgb.zip/', 
+             './dataset_additional_rgb/', 
+             './dataset_test_rgb.zip/',
+             './sim_training_data/', 
+             './real_training_data/']
+yaml_files = ['train.yaml', 
+              'additional_train.yaml', 
+              'test.yaml', 
+              'sim_data_annotations.yaml', 
+              'real_data_annotations.yaml']
 
 target_dir_trn = './trn_dataset/'
 target_dir_val = './val_dataset/'
@@ -41,7 +49,7 @@ def load_yaml(yaml_dir, yaml_fname):
 
 
 
-def add_data_from_yaml(yaml_dir):
+def add_data_from_yaml():
     '''
     adds to the global dictionary with characteristics of bounding boxes
     '''
@@ -89,7 +97,7 @@ def add_data_from_yaml(yaml_dir):
     return data
 
 
-def modify_filenames(yaml_dir):
+def modify_filenames_Bosch(yaml_dir):
     
     global data
 
@@ -98,7 +106,7 @@ def modify_filenames(yaml_dir):
         
 
 
-def modify_test_filenames():
+def modify_test_filenames_Bosch():
     
     global data
     
@@ -273,7 +281,7 @@ def reset_data():
 
 
 
-def create_trn(num_data_points):
+def create_trn_from_Bosch(num_data_points):
     '''
     create training dataset
     '''
@@ -282,14 +290,14 @@ def create_trn(num_data_points):
     reset_data()
     delete_current_datasets(target_dir_trn)
     data = load_yaml(yaml_dirs[0], yaml_files[0])
-    modify_filenames(yaml_dirs[0])
-    add_data_from_yaml(yaml_dirs[0])
+    modify_filenames_Bosch(yaml_dirs[0])
+    add_data_from_yaml()
     build_data_sets(target_dir_trn, min_records=num_data_points, 
                     add_variations=True, verbose=False, 
                     add_others=round(0.5*num_data_points))
 
 
-def create_val(num_data_points):
+def create_val_from_Bosch(num_data_points):
     '''
     create validation dataset
     '''
@@ -298,15 +306,15 @@ def create_val(num_data_points):
     reset_data()
     delete_current_datasets(target_dir_val)
     data = load_yaml(yaml_dirs[1], yaml_files[1])
-    modify_filenames(yaml_dirs[1])
-    add_data_from_yaml(yaml_dirs[1])
+    modify_filenames_Bosch(yaml_dirs[1])
+    add_data_from_yaml()
     build_data_sets(target_dir_val, min_records=num_data_points, 
                     add_variations=True, verbose=False, 
                     add_others=round(0.5*num_data_points))
        
 
 
-def create_tst(num_data_points):
+def create_tst_from_Bosch(num_data_points):
     '''
     create test dataset
     '''
@@ -315,13 +323,98 @@ def create_tst(num_data_points):
     reset_data()
     delete_current_datasets(target_dir_tst)
     data = load_yaml(yaml_dirs[2], yaml_files[2])
-    modify_test_filenames()
-    modify_filenames(yaml_dirs[2])
-    add_data_from_yaml(yaml_dirs[2])
+    modify_test_filenames_Bosch()
+    modify_filenames_Bosch(yaml_dirs[2])
+    add_data_from_yaml()
     build_data_sets(target_dir_tst, min_records=num_data_points, 
                     add_variations=True, verbose=False, 
                     add_others=round(0.5*num_data_points))
        
+
+
+def modify_filenames_Sim_Track(yaml_dir):
+    
+    global data
+
+    for entry in data:
+        entry['filename'] = yaml_dir+entry['filename']
+
+
+
+def adjust_fields_Sim_Track():
+    '''
+    adjust the field names in other_lights so that the same function can process the database
+    built from all sources
+    '''
+    global data
+    
+    for img in data:
+        img['path'] = img['filename']
+        img['label'] = img['class']
+        for tl in img['annotations']:
+            tl['x_min'] = tl['xmin']
+            tl['x_max'] = tl['xmin']+tl['x_width']
+            tl['y_min'] = tl['ymin']
+            tl['y_max'] = tl['ymin']+tl['y_height']
+            tl['label'] = tl['class']
+        img['boxes'] = img['annotations']
+
+    
+
+def create_data_from_sim(num_trn, num_val, num_tst):
+    '''
+    create training validation and test data from simulation captures
+    '''
+    global data
+    reset_data()
+    delete_current_datasets(target_dir_trn)
+    delete_current_datasets(target_dir_val)
+    delete_current_datasets(target_dir_tst)
+    data = load_yaml(yaml_dirs[3], yaml_files[3])
+    modify_filenames_Sim_Track(yaml_dirs[3])
+    adjust_fields_Sim_Track()
+    add_data_from_yaml()
+    
+    # create training data
+    build_data_sets(target_dir_trn, min_records=num_trn, 
+                    add_variations=True, verbose=False, 
+                    add_others=num_trn)
+    # create validation data
+    build_data_sets(target_dir_val, min_records=num_val, 
+                    add_variations=True, verbose=False, 
+                    add_others=num_val)
+    # create test data
+    build_data_sets(target_dir_tst, min_records=num_tst, 
+                    add_variations=True, verbose=False, 
+                    add_others=num_tst)
+    
+
+def create_data_from_track(num_trn, num_val, num_tst):
+    '''
+    create training validation and test data from simulation captures
+    '''
+    global data
+    reset_data()
+    delete_current_datasets(target_dir_trn)
+    delete_current_datasets(target_dir_val)
+    delete_current_datasets(target_dir_tst)
+    data = load_yaml(yaml_dirs[4], yaml_files[4])
+    modify_filenames_Sim_Track(yaml_dirs[4])
+    adjust_fields_Sim_Track()
+    add_data_from_yaml()
+    
+    # create training data
+    build_data_sets(target_dir_trn, min_records=num_trn, 
+                    add_variations=True, verbose=False, 
+                    add_others=num_trn)
+    # create validation data
+    build_data_sets(target_dir_val, min_records=num_val, 
+                    add_variations=True, verbose=False, 
+                    add_others=num_val)
+    # create test data
+    build_data_sets(target_dir_tst, min_records=num_tst, 
+                    add_variations=True, verbose=False, 
+                    add_others=num_tst)
     
 
 def main():
